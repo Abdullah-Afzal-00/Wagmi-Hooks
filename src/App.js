@@ -11,31 +11,35 @@ import { Web3Modal } from "@web3modal/react";
 import Home from "./Home";
 
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
+import { publicProvider } from "wagmi/providers/public";
+import { MetaMaskConnector } from "wagmi/connectors/metaMask";
+import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
+import { InjectedConnector } from "wagmi/connectors/injected";
+import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 
 function App() {
   const chains = [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum];
-  console.log(chain);
 
-  // const initializeContract = (abi, address) => {
-  //   const contract = new web3.eth.Contract(abi, address);
-  //   return contract;
-  // };
-
-  // const web3 = new Web3(window.ethereum);
-
-  const { provider } = configureChains(chains, [
+  const { provider, webSocketProvider } = configureChains(chains, [
     walletConnectProvider({ projectId: "1ea39c4aff5e88f307b0eddd1f88afdc" }),
+    publicProvider(),
   ]);
 
   const wagmiClient = createClient({
     autoConnect: true,
-    connectors: modalConnectors({ appName: "web3Moda", chains }),
     provider,
+    webSocketProvider,
+    connectors: [
+      //modalConnectors({ appName: "web3Moda", chains }),
+      new CoinbaseWalletConnector({ chains }),
+      new MetaMaskConnector({ chains }),
+      new InjectedConnector({ chains, options: { name: "Injected" } }),
+      new WalletConnectConnector({ chains }),
+    ],
   });
 
   // Web3Modal Ethereum Client
   const ethereumClient = new EthereumClient(wagmiClient, chains);
-
   return (
     <>
       <WagmiConfig client={wagmiClient}>

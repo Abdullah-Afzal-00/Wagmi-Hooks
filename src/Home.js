@@ -27,7 +27,9 @@ const Home = () => {
   const provider = useProvider({
     chainId: 1,
   });
-  console.log(provider);
+  {
+    console.log(connectors);
+  }
   return (
     <div>
       <Web3Button />
@@ -40,6 +42,18 @@ const Home = () => {
       ) : (
         <></>
       )}
+      {connectors.map((connector) => {
+        return (
+          <button
+            key={connector.id}
+            onClick={() => {
+              connect({ connector });
+            }}
+          >
+            {connector.name}
+          </button>
+        );
+      })}
     </div>
   );
 };
